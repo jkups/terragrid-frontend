@@ -36,3 +36,40 @@
     transform: rotate(360deg);
   }
 }
+
+.leaflet-container {
+  height:100vh;
+  width: 100vw;
+}
+
+.navbar {
+  display:flex;
+  justify-content: space-between;
+  position: absolute;
+  padding: 10px;
+  left:0;
+  right:0;
+  z-index: 1000;
+}
+
+.navbar .menu, .settings div  {
+  padding:10px;
+  background-color: white;
+  box-shadow: 1px 1px grey;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.navbar .settings {
+  display: flex;
+}
+.settings div {
+  margin-left: 8px;
+}
+
+.itinerary-wrapper {
+  background-color: lightgrey;
+  height: 80vh;
+  display:none;
+  /* overflow: auto; */
+}

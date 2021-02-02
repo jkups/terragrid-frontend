@@ -3,57 +3,96 @@ import NavBar from '../NavBar'
 import Routing from './Routing'
 import L from 'leaflet'
 import { MapContainer, TileLayer, Popup, ZoomControl } from 'react-leaflet'
-
 require('leaflet.motion/dist/leaflet.motion.min.js')
 
-let bounds = []
-let coord = null
+const MAPBOX_API_KEY = 'pk.eyJ1Ijoiamt1cHMiLCJhIjoiY2tramFsN2EyMDJmNjJwcGVodms0ZDIzeiJ9.g1MbhlX-djVh_CZYt7t-dQ'
+
+const bounds = {} //scale&zoom map to show all routes
+const routes = {} //keep track of visible routes on map
+const simulationData = {} //keep track for journey simulation
+
 const TerraMap = props => {
-
-  const wayPoints = [
-    {
-      start: [-37.90574549300565, 144.7466052650177],
-      end: [-37.81086045036506, 144.9598019963491]
-    },
-    {
-      start: [-37.91067303518276, 144.76989648087897],
-      end: [-37.92689762476188, 144.63457410870475]
-    }
-  ]
-
   const [map, setMap] = useState(null)
-  const [idx, setIdx] = useState(null)
+  const [wayPoints, setWayPoints] = useState(null)
+  const [wayPointsId, setWayPointsId] = useState(null)
 
-  const animateMarker = coordinates => {
-    if(map && idx !== null){
-      L.motion.polyline(coordinates, {
-        color: "transparent"
-      }, {
-        auto: true,
-        duration: 8000,
-        easing: L.Motion.Ease.easeInOutQuart
-      }, {
-        removeOnEnd: true,
-        showMarker: true,
-      }).addTo(map);
+  const simulateJourneys = () => {
+    const coordinates = Object.values(simulationData)
+
+    if(coordinates.length > 0){
+      for(let i = 0; i < coordinates.length; i++){
+        L.motion.polyline(coordinates[i], {
+          color: "transparent"
+        }, {
+          auto: true,
+          duration: 8000,
+          easing: L.Motion.Ease.easeInOutQuart
+        }, {
+          removeOnEnd: true,
+          showMarker: true,
+        }).addTo(map);
+      }
     }
   }
 
+  const showRoute = (waypoints, journeyId) => {
+    bounds[journeyId] = waypoints
+    map.fitBounds(Object.values(bounds))
 
-  const addRoute = value => {
-    bounds = []
-    bounds.push(wayPoints[value].start)
-    bounds.push(wayPoints[value].end)
+    const leafletElement = L.Routing.control({
+      router: L.Routing.mapbox(MAPBOX_API_KEY),
+      waypoints: [
+        waypoints[0],
+        waypoints[1]
+      ],
+      containerClassName: 'itinerary-wrapper'
+    }).addTo(map);
 
-    setIdx(value)
-    console.log('bounds:', bounds);
-    map.fitBounds(bounds)
+    leafletElement.on('routeselected', ev => {
+      console.log('am inside the event');
+      routes[journeyId] = leafletElement
+      simulationData[journeyId] = ev.route.coordinates
+    })
+
   }
 
+  // const showRoute = (waypoints, id) => {
+  //   bounds[id] = waypoints
+  //   map.fitBounds(Object.values(bounds))
+  //   setWayPointsId(id)
+  //   setWayPoints(waypoints)
+  // }
+
+  const removeRoute = journeyId => {
+    const route = routes[journeyId]
+    delete bounds[journeyId]
+    delete routes[journeyId]
+    delete simulationData[journeyId]
+    route.remove()
+
+    if(Object.keys(bounds).length > 0){
+      map.fitBounds(Object.values(bounds))
+    }
+  }
+
+  const setSimulationData = (leafletElement, route) => {
+    routes[wayPointsId] = leafletElement
+    simulationData[wayPointsId] = route.coordinates
+  }
+
+  const handleUrlRoute = url => {
+    props.history.push(url)
+  }
 
   return(
     <div>
-      <NavBar addRoute={addRoute} idx={idx}/>
+      <NavBar
+        showMapMenu={true}
+        handleUrlRoute={handleUrlRoute}
+        showRoute={showRoute}
+        removeRoute={removeRoute}
+        simulateJourneys={simulateJourneys}
+      />
       <MapContainer center={[-37.840935, 144.946457]} zoomControl={false} zoom={13} scrollWheelZoom={false} whenCreated={setMap}>
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -62,10 +101,13 @@ const TerraMap = props => {
 
         <ZoomControl position={'bottomright'} />
         {
-          map && idx !== null ?
-
-            <Routing map={map} points={bounds} animateMarker={animateMarker}/>
-          : null
+          // map && wayPoints !== null ?
+          // <Routing
+          //   map={map}
+          //   wayPoints={wayPoints}
+          //   setSimulationData={setSimulationData}
+          // />
+          // : null
         }
       </MapContainer>
     </div>
@@ -73,3 +115,71 @@ const TerraMap = props => {
 }
 
 export default TerraMap
+
+
+
+// let bounds = []
+// let coord = null
+// const TerraMap = props => {
+  //
+  //   const wayPoints = [
+    //     {
+      //       start: [-37.90574549300565, 144.7466052650177],
+      //       end: [-37.81086045036506, 144.9598019963491]
+      //     },
+      //     {
+        //       start: [-37.91067303518276, 144.76989648087897],
+        //       end: [-37.92689762476188, 144.63457410870475]
+        //     }
+        //   ]
+        //
+        //   const [map, setMap] = useState(null)
+        //   const [idx, setIdx] = useState(null)
+        //
+        //   const animateMarker = coordinates => {
+          //     if(map && idx !== null){
+            //       L.motion.polyline(coordinates, {
+              //         color: "transparent"
+              //       }, {
+                //         auto: true,
+                //         duration: 8000,
+                //         easing: L.Motion.Ease.easeInOutQuart
+                //       }, {
+                  //         removeOnEnd: true,
+                  //         showMarker: true,
+                  //       }).addTo(map);
+                  //     }
+                  //   }
+                  //
+                  //
+                  //   const addRoute = value => {
+                    //     bounds = []
+                    //     bounds.push(wayPoints[value].start)
+                    //     bounds.push(wayPoints[value].end)
+                    //
+                    //     setIdx(value)
+                    //     console.log('bounds:', bounds);
+                    //     map.fitBounds(bounds)
+                    //   }
+                    //
+                    //
+                    //   return(
+                      //     <div>
+                      //       <NavBar addRoute={addRoute} idx={idx}/>
+                    //       <MapContainer center={[-37.840935, 144.946457]} zoomControl={false} zoom={13} scrollWheelZoom={false} whenCreated={setMap}>
+                    //         <TileLayer
+                    //           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                    //           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    //         />
+                  //
+                  //         <ZoomControl position={'bottomright'} />
+                //         {
+                  //           map && idx !== null ?
+                  //
+                  //             <Routing map={map} points={bounds} animateMarker={animateMarker}/>
+                //           : null
+                //         }
+                //       </MapContainer>
+              //     </div>
+            //   )
+            // }

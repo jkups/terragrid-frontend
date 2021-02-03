@@ -24,7 +24,8 @@ const Vehicle = props => {
   return(
     <div>
       <NavBar
-        showMapMenu={false}
+        {...props}
+        onMapMenu={false}
         handleUrlRoute={handleUrlRoute}
       />
       <div className="admin-wrapper">

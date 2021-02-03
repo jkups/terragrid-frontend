@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 import NavBar from '../NavBar'
 import Routing from './Routing'
 import L from 'leaflet'
@@ -7,6 +8,7 @@ require('leaflet.motion/dist/leaflet.motion.min.js')
 
 const MAPBOX_API_KEY = 'pk.eyJ1Ijoiamt1cHMiLCJhIjoiY2tramFsN2EyMDJmNjJwcGVodms0ZDIzeiJ9.g1MbhlX-djVh_CZYt7t-dQ'
 
+const BASE_URL = 'http://localhost:8000'
 const bounds = {} //scale&zoom map to show all routes
 const routes = {} //keep track of visible routes on map
 const simulationData = {} //keep track for journey simulation
@@ -15,23 +17,77 @@ const TerraMap = props => {
   const [map, setMap] = useState(null)
   const [wayPoints, setWayPoints] = useState(null)
   const [wayPointsId, setWayPointsId] = useState(null)
+  const [journeys, setJourneys] = useState([])
+
+  useEffect(() => {
+    axios.get(`${BASE_URL}/journeys`)
+    .then( res => {
+      setJourneys(res.data)
+    })
+    .catch( console.error )
+  }, [])
+
+  const animatePolyLine = async coordinates => {
+    const polyLineElement = L.motion.polyline(coordinates,
+      {
+        color: "transparent"
+      },
+      {
+        auto: true,
+        duration: 1000
+      },
+      {
+        removeOnEnd: true,
+        showMarker: true,
+      }
+    ).addTo(map);
+  }
+
+  const timer = ms => new Promise(res => setTimeout(res, ms));
+
+  const startJourney = async () => {
+    const coordinates = Object.values(simulationData)[0]
+    //will change up this to be dynamic later
+
+    for(let i = 0; i < coordinates.length - 1; i++){
+      const coord = [ coordinates[i], coordinates[i + 1] ]
+
+      animatePolyLine(coord);
+      await timer(800)
+    }
+  }
 
   const simulateJourneys = () => {
     const coordinates = Object.values(simulationData)
 
     if(coordinates.length > 0){
       for(let i = 0; i < coordinates.length; i++){
-        L.motion.polyline(coordinates[i], {
-          color: "transparent"
-        }, {
-          auto: true,
-          duration: 8000,
-          easing: L.Motion.Ease.easeInOutQuart
-        }, {
-          removeOnEnd: true,
-          showMarker: true,
-        }).addTo(map);
+        animatePolyLine(coordinates[i])
       }
+    }
+  }
+
+  const toggleRoute = ev => {
+    const journeyId = ev.target.id
+
+    if(ev.target.checked === true){
+      const data = journeys.find(j => j._id === journeyId);
+
+      const waypoints = [
+        [
+          data.originGeoCode.lat,
+          data.originGeoCode.lng
+        ],
+        [
+          data.destinationGeoCode.lat,
+          data.destinationGeoCode.lng
+        ]
+      ]
+
+      showRoute(waypoints, journeyId)
+
+    } else {
+      removeRoute(journeyId)
     }
   }
 
@@ -49,19 +105,11 @@ const TerraMap = props => {
     }).addTo(map);
 
     leafletElement.on('routeselected', ev => {
-      console.log('am inside the event');
       routes[journeyId] = leafletElement
       simulationData[journeyId] = ev.route.coordinates
     })
 
   }
-
-  // const showRoute = (waypoints, id) => {
-  //   bounds[id] = waypoints
-  //   map.fitBounds(Object.values(bounds))
-  //   setWayPointsId(id)
-  //   setWayPoints(waypoints)
-  // }
 
   const removeRoute = journeyId => {
     const route = routes[journeyId]
@@ -87,10 +135,11 @@ const TerraMap = props => {
   return(
     <div>
       <NavBar
-        showMapMenu={true}
+        {...props}
+        journeys={journeys}
+        toggleRoute={toggleRoute}
+        onMapMenu={true}
         handleUrlRoute={handleUrlRoute}
-        showRoute={showRoute}
-        removeRoute={removeRoute}
         simulateJourneys={simulateJourneys}
       />
       <MapContainer center={[-37.840935, 144.946457]} zoomControl={false} zoom={13} scrollWheelZoom={false} whenCreated={setMap}>

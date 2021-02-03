@@ -27,8 +27,34 @@ const TerraMap = props => {
     .catch( console.error )
   }, [])
 
-  const startJourney = () => {
+  const animatePolyLine = async coordinates => {
+    const polyLineElement = L.motion.polyline(coordinates,
+      {
+        color: "transparent"
+      },
+      {
+        auto: true,
+        duration: 1000
+      },
+      {
+        removeOnEnd: true,
+        showMarker: true,
+      }
+    ).addTo(map);
+  }
 
+  const timer = ms => new Promise(res => setTimeout(res, ms));
+
+  const startJourney = async () => {
+    const coordinates = Object.values(simulationData)[0]
+    //will change up this to be dynamic later
+
+    for(let i = 0; i < coordinates.length - 1; i++){
+      const coord = [ coordinates[i], coordinates[i + 1] ]
+
+      animatePolyLine(coord);
+      await timer(800)
+    }
   }
 
   const simulateJourneys = () => {
@@ -37,23 +63,32 @@ const TerraMap = props => {
 
     if(coordinates.length > 0){
       for(let i = 0; i < coordinates.length; i++){
-        console.log(coordinates[i])
-        for(let j = 0; j < coordinates[i].length; j++) {
-          // if(j === 0){
-          //   coord = .push(coordinates[j])
-          // }
-          L.motion.polyline(coordinates[j], {
-            color: "transparent"
-          }, {
-            auto: true,
-            duration: 8000,
-            easing: L.Motion.Ease.easeInOutQuart
-          }, {
-            removeOnEnd: true,
-            showMarker: true,
-          }).addTo(map);
-        }
+        animatePolyLine(coordinates[i])
       }
+    }
+  }
+
+  const toggleRoute = ev => {
+    const journeyId = ev.target.id
+
+    if(ev.target.checked === true){
+      const data = journeys.find(j => j._id === journeyId);
+
+      const waypoints = [
+        [
+          data.originGeoCode.lat,
+          data.originGeoCode.lng
+        ],
+        [
+          data.destinationGeoCode.lat,
+          data.destinationGeoCode.lng
+        ]
+      ]
+
+      showRoute(waypoints, journeyId)
+
+    } else {
+      removeRoute(journeyId)
     }
   }
 
@@ -103,11 +138,9 @@ const TerraMap = props => {
       <NavBar
         {...props}
         journeys={journeys}
-        handleLogout={props.handleLogout}
-        showMapMenu={true}
+        toggleRoute={toggleRoute}
+        onMapMenu={true}
         handleUrlRoute={handleUrlRoute}
-        showRoute={showRoute}
-        removeRoute={removeRoute}
         simulateJourneys={simulateJourneys}
       />
       <MapContainer center={[-37.840935, 144.946457]} zoomControl={false} zoom={13} scrollWheelZoom={false} whenCreated={setMap}>

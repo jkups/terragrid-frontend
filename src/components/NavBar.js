@@ -37,11 +37,10 @@ const NavBar = props => {
     }
   }
 
-
   return(
     <div className="navbar">
       {
-        props.showMapMenu ?
+        props.onMapMenu ?
         <div className="menu collapsed">
           <span>MENU</span>
           <div className="menu-items">
@@ -53,7 +52,7 @@ const NavBar = props => {
                     <input
                       id={j._id}
                       type="checkbox"
-                      onClick={toggleRoute}
+                      onClick={props.toggleRoute}
                     />
                   </div>
                   <div className="second">
@@ -69,7 +68,7 @@ const NavBar = props => {
       }
       <div className="settings">
         {
-          user.userType === 'driver' ?
+          user.userType !== 'driver' ?
           <div onClick={props.simulateJourneys}>Simulate</div> : null
         }
         <div onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>

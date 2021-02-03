@@ -67,7 +67,7 @@ const Driver = props => {
                     <li>{driver.mobileNumber}</li>
                     <li>{driver.email}</li>
                     <li>{driver.licenseNumber}</li>
-                    <li>Status</li>
+                    <li>{driver.status}</li>
                     <li>
                       <span onClick={() => {handleUrlRoute(`/settings/drivers/${driver._id}/edit`)}}>Update</span>
                       &nbsp;|&nbsp;

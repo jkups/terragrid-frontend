@@ -56,6 +56,11 @@
   text-align: right;
   position: relative;
 }
+
+.navbar .menu {
+  position: absolute;
+}
+
 .navbar .menu > span, .settings > div, .settings .dropdown {
   padding:10px;
   background-color: white;
@@ -256,6 +261,11 @@
   display: flex;
 }
 
+.admin-form.journeys {
+  display: block;
+  justify-content: flex-start;
+}
+
 .form-group p {
   margin-bottom: 5px;
 }
@@ -274,10 +284,6 @@
   margin-top:30px;
 }
 
-input[type="file"]{
-  opacity:0;
-  width:0
-}
 
 .profile-photo {
   display: inline-block;
@@ -304,7 +310,7 @@ input[type="file"]{
 }
 
 button{
-  padding: 10px 15px;
+  padding: 0.7em 15px;
   background-color: orange;
   border: none;
   color: white;
@@ -323,13 +329,18 @@ button:focus {
   outline: none;
 }
 
-input, select{
+input, select, textarea{
   padding: 10px 15px;
   border-radius: 5px;
   font-size: 16px;
   border: 1px solid lightgrey;
   width: 100%;
   box-sizing: border-box;
+}
+
+select.standard {
+  width: auto;
+  margin-right: 10px;
 }
 
 input:focus, select:focus{
@@ -340,4 +351,17 @@ input[type="date"]{
   padding: 0.48em;
   width: 100%;
   box-sizing: border-box;
+}
+
+input[type="file"]{
+  opacity:0;
+  width:0
+}
+
+.react-calendar__month-view__days__day {
+  color: black;
+}
+
+.react-calendar__tile--now {
+  background-color: #e6e6e6 !important;
 }

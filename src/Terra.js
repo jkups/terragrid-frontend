@@ -14,10 +14,14 @@ import Vehicles from './components/settings/vehicles/Vehicles'
 import NewVehicle from './components/settings/vehicles/NewVehicle'
 import UpdateVehicle from './components/settings/vehicles/UpdateVehicle'
 
-import Journeys from './components/settings/Journeys'
+import Journeys from './components/settings/journeys/Journeys'
+import NewJourney from './components/settings/journeys/NewJourney'
+
 import './Terra.css';
 
 const Terra = props => {
+  const token = JSON.parse(sessionStorage.getItem('token'))
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
   const getCurrentUser = () => {
     const user = sessionStorage.getItem('user')
@@ -86,7 +90,18 @@ const Terra = props => {
       )}/>
 
 
-      <Route exact path='/settings/journeys' component={Journeys} />
+      <Route exact path='/settings/journeys' render={props => (
+        isAdmin() ? <Journeys {...props} /> :
+        getCurrentUser() ? <Redirect to='/maps' /> :
+        <Redirect to='/login' />
+      )}/>
+
+      <Route exact path='/settings/journeys/vehicle/:id/new' render={props => (
+        isAdmin() ? <NewJourney {...props} /> :
+        getCurrentUser() ? <Redirect to='/maps' /> :
+        <Redirect to='/login' />
+      )}/>
+
     </Router>
   );
 }

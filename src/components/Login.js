@@ -15,9 +15,9 @@ const Login = props => {
     .then( res => {
       console.log(res.data);
       if(res.data.success){
-        sessionStorage.setItem('token', JSON.Stringify(res.data.token))
+        sessionStorage.setItem('token', JSON.stringify(res.data.token))
+        sessionStorage.setItem('user', JSON.stringify(res.data.user))
         axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`
-        props.setCurrentUser(res.data.user)
         props.history.push('/maps')
       }
     })

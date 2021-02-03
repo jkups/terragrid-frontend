@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { Route, HashRouter as Router } from 'react-router-dom'
+import { Route, Redirect, HashRouter as Router } from 'react-router-dom'
 import axios from 'axios'
 
 import Login from './components/Login'
@@ -17,37 +17,74 @@ import UpdateVehicle from './components/settings/vehicles/UpdateVehicle'
 import Journeys from './components/settings/Journeys'
 import './Terra.css';
 
-const Terra = () => {
+const Terra = props => {
 
-  const [currentUser, setCurrentUser] = useState(null)
-
-  const handleLogout = () => {
-    setCurrentUser(null)
-    sessionStorage.removeItem('token')
-    axios.defaults.headers.common['Authorization'] = null
+  const getCurrentUser = () => {
+    const user = sessionStorage.getItem('user')
+    return user ? user : false
   }
 
-  const getToken = () => {
-    const token = sessionStorage.getItem('token');
-    return JSON.parse(token);
+  const isAdmin= () => {
+    const user = sessionStorage.getItem('user')
+    return user && JSON.parse(user).userType === 'admin' ? user : false
   }
-
 
   return (
     <Router>
+      <Route exact path='/login'render={props => (
+        getCurrentUser() ?
+        <Redirect to='/maps' /> :
+        <Login {...props} />
+      )}/>
 
-      <Route exact path='/login' component={ Login } setCurrentUser={(user) => setCurrentUser(user)}/>
+      <Route exact path='/maps'render={props => (
+        getCurrentUser() ?
+        <TerraMap {...props} /> :
+        <Redirect to='/login' />
+      )}/>
 
-      <Route exact path='/maps' component={ TerraMap }/>
-      <Route exact path='/settings' component={Settings} />
+      <Route exact path='/settings'render={props => (
+        isAdmin() ? <Settings {...props} /> :
+        getCurrentUser() ? <Redirect to='/maps' /> :
+        <Redirect to='/login' />
+      )}/>
 
-      <Route exact path='/settings/drivers' component={Drivers} />
-      <Route exact path='/settings/drivers/new' component={NewDriver} />
-      <Route exact path='/settings/drivers/:id/edit' component={UpdateDriver} />
+      <Route exact path='/settings/drivers'render={props => (
+        isAdmin() ? <Drivers {...props} /> :
+        getCurrentUser() ? <Redirect to='/maps' /> :
+        <Redirect to='/login' />
+      )}/>
 
-      <Route exact path='/settings/vehicles' component={Vehicles} />
-      <Route exact path='/settings/vehicles/new' component={NewVehicle} />
-      <Route exact path='/settings/vehicles/:id/edit' component={UpdateVehicle} />
+      <Route exact path='/settings/drivers/new'render={props => (
+        isAdmin() ? <NewDriver {...props} /> :
+        getCurrentUser() ? <Redirect to='/maps' /> :
+        <Redirect to='/login' />
+      )}/>
+
+      <Route exact path='/settings/drivers/:id/edit'render={props => (
+        isAdmin() ? <UpdateDriver {...props} /> :
+        getCurrentUser() ? <Redirect to='/maps' /> :
+        <Redirect to='/login' />
+      )}/>
+
+      <Route exact path='/settings/vehicles'render={props => (
+        isAdmin() ? <Vehicles {...props} /> :
+        getCurrentUser() ? <Redirect to='/maps' /> :
+        <Redirect to='/login' />
+      )}/>
+
+      <Route exact path='/settings/vehicles/new'render={props => (
+        isAdmin() ? <NewVehicle {...props} /> :
+        getCurrentUser() ? <Redirect to='/maps' /> :
+        <Redirect to='/login' />
+      )}/>
+
+      <Route exact path='/settings/vehicles/:id/edit'render={props => (
+        isAdmin() ? <UpdateVehicle {...props} /> :
+        getCurrentUser() ? <Redirect to='/maps' /> :
+        <Redirect to='/login' />
+      )}/>
+
 
       <Route exact path='/settings/journeys' component={Journeys} />
     </Router>

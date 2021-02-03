@@ -2,34 +2,32 @@ import React, {useState, useEffect} from 'react'
 import axios from 'axios'
 import '../Terra.css'
 
-const BASE_URL = 'http://localhost:8000'
-
 const NavBar = props => {
-  const [journey, setJourney] = useState([])
+  const user = JSON.parse(sessionStorage.getItem('user'))
   const [showDropdown, setShowDropdown] = useState(false)
 
-  useEffect(() => {
-    axios.get(`${BASE_URL}/journeys`)
-    .then( res => {
-      setJourney(res.data)
-    })
-    .catch( console.error )
-  }, [])
+  const handleLogout = () => {
+    sessionStorage.removeItem('token')
+    sessionStorage.removeItem('user')
+    axios.defaults.headers.common['Authorization'] = undefined
 
-  const handleClick = ev => {
+    props.history.push('/login');
+  }
+
+  const toggleRoute = ev => {
     const journeyId = ev.target.id
 
     if(ev.target.checked === true){
-      const data = journey.find(j => j._id === journeyId);
+      const data = props.journeys.find(j => j._id === journeyId);
 
       const waypoints = [
         [
-          data.originGeoCode[0].lat,
-          data.originGeoCode[0].lng
+          data.originGeoCode.lat,
+          data.originGeoCode.lng
         ],
         [
-          data.destinationGeoCode[0].lat,
-          data.destinationGeoCode[0].lng
+          data.destinationGeoCode.lat,
+          data.destinationGeoCode.lng
         ]
       ]
 
@@ -48,14 +46,14 @@ const NavBar = props => {
           <span>MENU</span>
           <div className="menu-items">
             {
-              journey.map( (j, idx) =>
+              props.journeys.map( (j, idx) =>
                 <div key={idx} className="item">
                   <div className="first">
                     <span>{j.vehicle.code}</span>
                     <input
                       id={j._id}
                       type="checkbox"
-                      onClick={handleClick}
+                      onClick={toggleRoute}
                     />
                   </div>
                   <div className="second">
@@ -70,10 +68,13 @@ const NavBar = props => {
         </div> : null
       }
       <div className="settings">
-        <div onClick={props.simulateJourneys}>Simulate</div>
+        {
+          user.userType === 'driver' ?
+          <div onClick={props.simulateJourneys}>Simulate</div> : null
+        }
         <div onMouseEnter={() => setShowDropdown(true)} onMouseLeave={() => setShowDropdown(false)}>
           <div className="profile-image" >
-            John Kupoluyi O
+            {user.firstName} {user.lastName} O
           </div>
           {
             showDropdown ?
@@ -81,11 +82,12 @@ const NavBar = props => {
               <div className="dropdown">
                 <div>Profile</div>
                 {
-                  props.showMapMenu ?
+                  user.userType !== 'admin' ?
+                  null : props.onMapMenu ?
                   <div onClick={() => props.handleUrlRoute('/settings')}>Settings</div> :
                   <div onClick={() => props.handleUrlRoute('/maps')}>Maps</div>
                 }
-                <div>Logout</div>
+                <div onClick={handleLogout}>Logout</div>
               </div>
             </div> : null
           }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import socketIOClient from 'socket.io-client'
 import NavBar from '../NavBar'
 import Routing from './Routing'
 import L from 'leaflet'
@@ -12,6 +13,7 @@ const BASE_URL = 'http://localhost:8000'
 const bounds = {} //scale&zoom map to show all routes
 const routes = {} //keep track of visible routes on map
 const simulationData = {} //keep track for journey simulation
+const socket = socketIOClient(BASE_URL)
 
 // const geoLocator = () => {
 //   console.log('here');
@@ -49,6 +51,20 @@ const TerraMap = props => {
   }, [])
 
 
+  const [coordPairs, setCoordPairs] = useState([])
+
+  const ioSend = (coords, journeyId) => {
+    socket.emit('coords', coords, journeyId)
+    socket.on('coords', coords => {
+      const user = JSON.parse(sessionStorage.getItem('user'))
+      console.log('here');
+      if(user.userType !== 'driver'){
+        animatePolyLine(coords);
+      }
+    })
+  }
+
+
   const animatePolyLine = async coordinates => {
     const polyLineElement = L.motion.polyline(coordinates,
       {
@@ -72,13 +88,14 @@ const TerraMap = props => {
 
     await timer(2000)
     const coordinates = Object.values(simulationData)[0]
-    //will change up this to be dynamic later
 
     for(let i = 0; i < coordinates.length - 1; i++){
       const coord = [ coordinates[i], coordinates[i + 1] ]
 
       animatePolyLine(coord);
-      await timer(980)
+      ioSend(coord, ev.target.id);
+
+      await timer(990)
     }
   }
 

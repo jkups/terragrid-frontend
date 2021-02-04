@@ -24,8 +24,10 @@ const Login = props => {
   }
 
   return(
-    <div>
+    <div  className="login-wrapper">
+      <h2>TERRAGRID NETWORKS</h2>
       <div>
+        <h3>Log into your account</h3>
         <form onSubmit={handleSubmit}>
           <input type="email" name="email" onChange={(e) => setEmail(e.target.value)} required />
           <input type="password" name="password" onChange={(e) => setPassword(e.target.value)} required />

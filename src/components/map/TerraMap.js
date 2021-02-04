@@ -50,20 +50,19 @@ const TerraMap = props => {
     }
   }, [])
 
+  const timer = ms => new Promise(res => setTimeout(res, ms));
 
-  const [coordPairs, setCoordPairs] = useState([])
-
-  const ioSend = (coords, journeyId) => {
-    socket.emit('coords', coords, journeyId)
-    socket.on('coords', coords => {
+  useEffect(() => {
+    socket.on('coords', async coords => {
       const user = JSON.parse(sessionStorage.getItem('user'))
-      console.log('here');
-      if(user.userType !== 'driver'){
+
+      if(coords && user.userType !== 'driver'){
+        console.log(coords);
         animatePolyLine(coords);
+        // await timer(10000)
       }
     })
-  }
-
+  },[])
 
   const animatePolyLine = async coordinates => {
     const polyLineElement = L.motion.polyline(coordinates,
@@ -81,7 +80,6 @@ const TerraMap = props => {
     ).addTo(map);
   }
 
-  const timer = ms => new Promise(res => setTimeout(res, ms));
 
   const startJourney = async ev => {
     toggleRoute(ev)
@@ -90,12 +88,12 @@ const TerraMap = props => {
     const coordinates = Object.values(simulationData)[0]
 
     for(let i = 0; i < coordinates.length - 1; i++){
-      const coord = [ coordinates[i], coordinates[i + 1] ]
+      const coords = [ coordinates[i], coordinates[i + 1] ]
 
-      animatePolyLine(coord);
-      ioSend(coord, ev.target.id);
+      animatePolyLine(coords);
+      // socket.emit('coords', coords, ev.target.id)
 
-      await timer(990)
+      await timer(600)
     }
   }
 

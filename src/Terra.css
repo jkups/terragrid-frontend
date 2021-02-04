@@ -59,6 +59,7 @@
 
 .navbar .menu {
   position: absolute;
+  z-index: 1000;
 }
 
 .navbar .menu > span, .settings > div, .settings .dropdown {
@@ -113,7 +114,7 @@
   cursor: pointer;
 }
 
-.item .first:hover, .settings .dropdown div:hover, .setup-wrapper div div:hover, .admin-sidebar div:hover, .entity-row:hover {
+.item .first:hover, .settings .dropdown div:hover, .settings-wrapper div div:hover, .admin-sidebar div:hover, .entity-row:hover {
   background-color: #eaeaea;
 }
 
@@ -309,6 +310,34 @@
   top: 40px;
 }
 
+.login-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.login-wrapper h2 {
+  color: grey;
+}
+
+.login-wrapper > div {
+  padding: 30px;
+  border-radius: 10px;
+  border: 1px solid lightgrey;
+}
+
+.login-wrapper input {
+  margin-bottom: 10px;
+}
+
+.login-wrapper button {
+  margin-top: 15px;
+  width: 100%
+}
+
 button.start-button{
   padding: 5px;
   font-size: 12px;
@@ -370,4 +399,16 @@ input[type="file"]{
 
 .react-calendar__tile--now {
   background-color: #e6e6e6 !important;
+}
+
+.react-datetime-picker__wrapper {
+  border: 1px solid lightgrey !important;
+  border-radius: 5px;
+  padding: 5px;
+  width: 100%;
+}
+
+.react-datetime-picker {
+  border-radius: 5px;
+  width: 100%;
 }

@@ -15,7 +15,7 @@ const Settings = props => {
         handleUrlRoute={handleUrlRoute}
       />
     <div className="settings-wrapper">
-        <h2>TerraMap for Logistics Coy.</h2>
+        <h2>TERRAGRID NETWORKS</h2>
         <div>
           <div>Users</div>
           <div onClick={() => handleUrlRoute('/settings/drivers')}>Drivers</div>

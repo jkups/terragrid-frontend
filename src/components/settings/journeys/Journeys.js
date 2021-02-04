@@ -99,17 +99,39 @@ const Journeys = props => {
               </ul>
               {
                 journeys.map( (journey, idx) =>
-                  <ul key={idx}>
+                  <ul key={idx} className="entity-row">
                     <li>{idx + 1}</li>
                     <li>{journey.origin}</li>
                     <li>{journey.destination}</li>
-                    <li></li>
+                    <li>
+                      <strong>from:</strong> {new Date(journey.startDate).toLocaleString()}
+                      <br/><br/>
+                      <strong>to:</strong> {new Date(journey.endDate).toLocaleString()}
+                    </li>
                     <li>{journey.instruction}</li>
                     <li>
-                      {journey.driver.firstName} {journey.driver.lastName}
+                      {
+                        journey.driver ?
+                        <div>
+                          <span>
+                            {journey.driver.firstName}
+                          </span>
+                          <span>
+                            {journey.driver.lastName}
+                          </span>
+                        </div> : 'None assigned'
+                      }
                     </li>
                     <li>{journey.status}</li>
-                    <li>action</li>
+                    <li>
+                      {
+                        journey.status === 'scheduled' ?
+                        <span>cancel</span> :
+                        <span onClick={handleUrlRoute(`/settings/journeys/driver/${journey._id}/schedule`)}>schedule</span>
+                      }
+                      &nbsp;|&nbsp;
+                      <span>update</span>
+                    </li>
                   </ul>
                 )
               }

@@ -16,6 +16,7 @@ import UpdateVehicle from './components/settings/vehicles/UpdateVehicle'
 
 import Journeys from './components/settings/journeys/Journeys'
 import NewJourney from './components/settings/journeys/NewJourney'
+import ScheduleJourney from './components/settings/journeys/ScheduleJourney'
 
 import './Terra.css';
 
@@ -98,6 +99,12 @@ const Terra = props => {
 
       <Route exact path='/settings/journeys/vehicle/:id/new' render={props => (
         isAdmin() ? <NewJourney {...props} /> :
+        getCurrentUser() ? <Redirect to='/maps' /> :
+        <Redirect to='/login' />
+      )}/>
+
+    <Route exact path='/settings/journeys/driver/:id/schedule' render={props => (
+        isAdmin() ? <ScheduleJourney {...props} /> :
         getCurrentUser() ? <Redirect to='/maps' /> :
         <Redirect to='/login' />
       )}/>

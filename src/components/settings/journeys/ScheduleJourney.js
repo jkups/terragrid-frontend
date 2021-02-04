@@ -7,33 +7,23 @@ const BASE_URL = 'http://localhost:8000'
 
 const NewJourney = props => {
 
-  const [journey, setJourney] = useState(null)
-  const [vehicle, setVehicle] = useState({})
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-
+  const [drivers, setDrivers] = useState([])
+  const [driver, setDriver] = useState('')
 
   useEffect(() => {
-    axios.get(`${BASE_URL}/vehicles/${props.match.params.id}`)
+    axios.get(`${BASE_URL}/drivers`)
     .then( res => {
-      setVehicle(res.data)
+      setDrivers(res.data)
     })
     .catch(console.error)
   }, [])
 
   const handleChange = ev => {
-    const name = ev.target.name
-    setJourney(journey => ({
-      ...journey, [name]: ev.target.value
-    }))
+    setDriver(ev.target.id)
   }
 
   const handleSubmit = ev => {
     ev.preventDefault()
-
-    journey.startDate = startDate
-    journey.endDate = endDate
-    journey.vehicle = props.match.params.id
 
     axios.post(`${BASE_URL}/journeys`, journey)
     .then(res => {

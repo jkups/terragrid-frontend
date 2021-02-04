@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState } from 'react'
 import axios from 'axios'
 import '../Terra.css'
 
 const NavBar = props => {
   const user = JSON.parse(sessionStorage.getItem('user'))
   const [showDropdown, setShowDropdown] = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
 
   const handleLogout = () => {
     sessionStorage.removeItem('token')
@@ -14,14 +15,14 @@ const NavBar = props => {
     props.history.push('/login');
   }
 
-
   return(
     <div className="navbar">
       {
         props.onMapMenu ?
         <div className="menu collapsed">
-          <span>MENU</span>
+          <span onClick={() => setShowMenu(!showMenu)}>MENU</span>
           {
+            !showMenu ? null :
             user.userType === 'driver' ?
             <div className="menu-items">
               {
@@ -80,7 +81,6 @@ const NavBar = props => {
             showDropdown ?
             <div className="dropdown-wrapper">
               <div className="dropdown">
-                <div>Profile</div>
                 {
                   user.userType !== 'admin' ?
                   null : props.onMapMenu ?

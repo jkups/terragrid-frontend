@@ -309,6 +309,12 @@
   top: 40px;
 }
 
+button.start-button{
+  padding: 5px;
+  font-size: 12px;
+  background-color: lightgrey;
+}
+
 button{
   padding: 0.7em 15px;
   background-color: orange;

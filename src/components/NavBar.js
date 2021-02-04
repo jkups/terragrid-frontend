@@ -14,28 +14,6 @@ const NavBar = props => {
     props.history.push('/login');
   }
 
-  const toggleRoute = ev => {
-    const journeyId = ev.target.id
-
-    if(ev.target.checked === true){
-      const data = props.journeys.find(j => j._id === journeyId);
-
-      const waypoints = [
-        [
-          data.originGeoCode.lat,
-          data.originGeoCode.lng
-        ],
-        [
-          data.destinationGeoCode.lat,
-          data.destinationGeoCode.lng
-        ]
-      ]
-
-      props.showRoute(waypoints, journeyId)
-    } else {
-      props.removeRoute(journeyId)
-    }
-  }
 
   return(
     <div className="navbar">
@@ -43,7 +21,29 @@ const NavBar = props => {
         props.onMapMenu ?
         <div className="menu collapsed">
           <span>MENU</span>
-          <div className="menu-items">
+          {
+            user.userType === 'driver' ?
+            <div className="menu-items">
+              {
+                props.driverJourneys.map( (j, idx) =>
+                  <div key={idx} className="item">
+                    <div className="first">
+                      <span>{j.vehicle.code}</span>
+                      <button name='driver' id={j._id} className="start-button" onClick={props.startJourney}
+                      >
+                        Start Journey
+                      </button>
+                    </div>
+                    <div className="second">
+                      <span>{j.status}</span>
+                      <span>OR</span>
+                      <span>DT</span>
+                    </div>
+                  </div>
+                )
+              }
+            </div> :
+            <div className="menu-items">
             {
               props.journeys.map( (j, idx) =>
                 <div key={idx} className="item">
@@ -64,6 +64,7 @@ const NavBar = props => {
               )
             }
           </div>
+          }
         </div> : null
       }
       <div className="settings">
@@ -97,25 +98,3 @@ const NavBar = props => {
 }
 
 export default NavBar
-
-// const NavBar = props => {
-//   let idx = props.idx !==null ? props.idx + 1 : 0
-//
-// console.log(idx);
-//   return(
-//     <div className="navbar">
-//       <div
-//         onClick={() => props.addRoute(idx)}
-//         className="menu"
-//       >
-//         MENU
-//       </div>
-//       <div className="settings">
-//         <div>Profile</div>
-//         <div>Settings</div>
-//       </div>
-//     </div>
-//   )
-// }
-//
-// export default NavBar

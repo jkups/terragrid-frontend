@@ -127,7 +127,7 @@ const Journeys = props => {
                       {
                         journey.status === 'scheduled' ?
                         <span>cancel</span> :
-                        <span onClick={handleUrlRoute(`/settings/journeys/driver/${journey._id}/schedule`)}>schedule</span>
+                        <span onClick={() => handleUrlRoute(`/settings/journeys/driver/${journey._id}/schedule`)}>schedule</span>
                       }
                       &nbsp;|&nbsp;
                       <span>update</span>

@@ -56,9 +56,9 @@ const TerraMap = props => {
     socket.on('coords', async coords => {
       const user = JSON.parse(sessionStorage.getItem('user'))
 
-      if(coords && user.userType !== 'driver'){
+      if(user.userType !== 'driver'){
         console.log(coords);
-        animatePolyLine(coords);
+        // animatePolyLine(coords);
         // await timer(10000)
       }
     })
@@ -91,9 +91,9 @@ const TerraMap = props => {
       const coords = [ coordinates[i], coordinates[i + 1] ]
 
       animatePolyLine(coords);
-      // socket.emit('coords', coords, ev.target.id)
+      socket.emit('coords', coords, ev.target.id)
 
-      await timer(600)
+      await timer(1000)
     }
   }
 

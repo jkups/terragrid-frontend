@@ -19,13 +19,15 @@ const NewJourney = props => {
   }, [])
 
   const handleChange = ev => {
-    setDriver(ev.target.id)
+    console.log(ev.target.value);
+    setDriver(ev.target.value)
   }
 
-  const handleSubmit = ev => {
+  const handleSubmit =  ev => {
     ev.preventDefault()
 
-    axios.post(`${BASE_URL}/journeys`, journey)
+    const journeyId = props.match.params.id
+    axios.put(`${BASE_URL}/journeys/${journeyId}`, {driver: driver, status: 'scheduled'})
     .then(res => {
       if(res.data.success){
         props.history.push('/settings/journeys')
@@ -66,45 +68,25 @@ const NewJourney = props => {
                         type="text"
                         placeholder="Origin Address"
                         style={{marginBottom: "30px"}}
-                        value={`Add a journey to vehicle ${vehicle.code} / ${vehicle.plateNumber}`}
+                        value={'Schedule a journey for the vehicle'}
                         disabled
                       />
                     </label>
                   </div>
-                  <div className="form-group">
-                    <label>
-                      <p>Start Date:</p>
-                      <DateTimePicker
-                        onChange={setStartDate}
-                        value={startDate}
-                      />
-                    </label>
-                    <label>
-                      <p>End Date:</p>
-                      <DateTimePicker
-                        onChange={setEndDate}
-                        value={endDate}
-                      />
-                    </label>
-                  </div>
-                  <div className="form-group">
-                    <label>
-                      <p>Origin Address:</p>
-                      <input name="origin" type="text" placeholder="Origin Address" onChange={handleChange} required/>
-                    </label>
-                    <label>
-                      <p>Destination Address:</p>
-                      <input name="destination" type="text" placeholder="Destination Address" onChange={handleChange} required/>
-                    </label>
-                  </div>
-                  <div className="form-group">
-                    <label>
-                      <p>Instruction:</p>
-                      <textarea name="instruction" type="text" placeholder="Instructions for the driver" onChange={handleChange} required></textarea>
-                    </label>
+                  <div className="form=group">
+                    <select onChange={handleChange} >
+                      <option value="none">Select a Driver</option>
+                      {
+                        drivers.map( (driver, idx) =>
+                          <option key={idx} value={driver._id}>
+                            {driver.firstName} {driver.lastName}
+                          </option>
+                        )
+                      }
+                    </select>
                   </div>
                   <div className="button-wrapper">
-                    <button className="form-button">Save New Journey</button>
+                    <button className="form-button">Schedule Journey</button>
                   </div>
                 </div>
               </form>

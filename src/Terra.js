@@ -36,6 +36,10 @@ const Terra = props => {
 
   return (
     <Router>
+      <Route exact path='/'>
+        <Redirect to='/login' />
+      </Route>
+
       <Route exact path='/login'render={props => (
         getCurrentUser() ?
         <Redirect to='/maps' /> :

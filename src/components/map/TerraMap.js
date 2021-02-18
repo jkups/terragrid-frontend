@@ -52,20 +52,8 @@ const TerraMap = props => {
 
   const timer = ms => new Promise(res => setTimeout(res, ms));
 
-  useEffect(() => {
-    socket.on('coords', async coords => {
-      const user = JSON.parse(sessionStorage.getItem('user'))
-
-      if(user.userType !== 'driver'){
-        console.log(coords);
-        // animatePolyLine(coords);
-        // await timer(10000)
-      }
-    })
-  },[])
-
-  const animatePolyLine = async coordinates => {
-    const polyLineElement = L.motion.polyline(coordinates,
+  const animatePolyLine = coordinates => {
+    L.motion.polyline(coordinates,
       {
         color: "transparent"
       },
@@ -80,9 +68,10 @@ const TerraMap = props => {
     ).addTo(map);
   }
 
-
   const startJourney = async ev => {
-    toggleRoute(ev)
+    const journeyId = ev.target.id
+    const waypoints = getRouteCoords(ev)
+    showRoute(waypoints, journeyId)
 
     await timer(2000)
     const coordinates = Object.values(simulationData)[0]
@@ -91,8 +80,29 @@ const TerraMap = props => {
       const coords = [ coordinates[i], coordinates[i + 1] ]
 
       animatePolyLine(coords);
-      socket.emit('coords', coords, ev.target.id)
+      socket.emit('coords', coords, journeyId)
 
+      await timer(1000)
+    }
+  }
+
+  const monitorJourney = ev => {
+    const journeyId = ev.target.id
+    const callbacks = { [journeyId]: plotRoute }
+
+    if(ev.target.checked === true){
+      const waypoints = getRouteCoords(ev)
+      showRoute(waypoints, journeyId)
+      socket.on('coords', callbacks[journeyId])
+    } else {
+      removeRoute(journeyId)
+    }
+  }
+
+  const plotRoute = async (coords, journeyId) => {
+    const user = JSON.parse(sessionStorage.getItem('user'))
+    if(user.userType !== 'driver' && routes[journeyId]){
+      animatePolyLine(coords);
       await timer(1000)
     }
   }
@@ -107,7 +117,7 @@ const TerraMap = props => {
     }
   }
 
-  const toggleRoute = ev => {
+  const getRouteCoords = ev => {
     const journeyId = ev.target.id
 
     if(ev.target.checked === true || ev.target.name === 'driver'){
@@ -115,7 +125,7 @@ const TerraMap = props => {
         driverJourneys.find(j => j._id === journeyId) :
         journeys.find(j => j._id === journeyId);
 
-      const waypoints = [
+      return [
         [
           data.originGeoCode.lat,
           data.originGeoCode.lng
@@ -125,11 +135,6 @@ const TerraMap = props => {
           data.destinationGeoCode.lng
         ]
       ]
-
-      showRoute(waypoints, journeyId)
-
-    } else {
-      removeRoute(journeyId)
     }
   }
 
@@ -157,6 +162,7 @@ const TerraMap = props => {
     delete bounds[journeyId]
     delete routes[journeyId]
     delete simulationData[journeyId]
+    socket.off('coords', journeyId)
     route.remove()
 
     if(Object.keys(bounds).length > 0){
@@ -179,7 +185,7 @@ const TerraMap = props => {
         {...props}
         journeys={journeys}
         driverJourneys={driverJourneys}
-        toggleRoute={toggleRoute}
+        monitorJourney={monitorJourney}
         onMapMenu={true}
         handleUrlRoute={handleUrlRoute}
         simulateJourneys={simulateJourneys}

@@ -6,6 +6,7 @@ const NavBar = props => {
   const user = JSON.parse(sessionStorage.getItem('user'))
   const [showDropdown, setShowDropdown] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [showJourney, setShowJourney] = useState({})
 
   const handleLogout = () => {
     sessionStorage.removeItem('token')
@@ -13,6 +14,16 @@ const NavBar = props => {
     axios.defaults.headers.common['Authorization'] = undefined
 
     props.history.push('/login');
+  }
+
+  const monitorJourney = ev => {
+    const state = ev.target.checked === true ? true : false
+
+    setShowJourney(journey => ({
+      ...journey, [ev.target.id]: state
+    }))
+
+    props.monitorJourney(ev)
   }
 
   return(
@@ -53,7 +64,10 @@ const NavBar = props => {
                     <input
                       id={j._id}
                       type="checkbox"
-                      onClick={props.toggleRoute}
+                      onClick={monitorJourney}
+                      checked={
+                        showJourney[j._id] ? true : false
+                      }
                     />
                   </div>
                   <div className="second">

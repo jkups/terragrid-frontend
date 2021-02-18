@@ -9,7 +9,7 @@ This is an online, real-time vehicle tacking web app.
 * Live demo: https://jkups.github.io/terragrid-frontend
   - Test Credentials:
     * Admin:
-      * username - john@ga.co,
+      * username - melinda@gmail.com,
       * password - chicken
     * Driver:
       * username: jacob@gmail.com

@@ -20,7 +20,7 @@ This is an online, real-time vehicle tacking web app.
 * Node.js
 
 ### APIs / Plugins
-* Lealetjs
+* Leafletjs
 * React leaflet
 * Leaflet motion
 * Mapbox

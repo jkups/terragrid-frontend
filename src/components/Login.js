@@ -34,6 +34,10 @@ const Login = props => {
           <button>Login</button>
         </form>
       </div>
+      <span style={{display:'inline-block', marginTop:'15px', color:'grey'}}>
+        see test credentials&nbsp;
+        <a href="https://github.com/jkups/terragrid-frontend" target="_blank">here</a>
+      </span>
     </div>
   )
 }
